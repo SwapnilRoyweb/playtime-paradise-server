@@ -58,6 +58,13 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/monkey', async (req, res) => {
+      const query = {subCategory: req.query.subCategory};
+
+      const result = await toysCollection.find(query).toArray();
+      res.send(result);
+    })
+
     app.put('/toys/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
