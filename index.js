@@ -24,9 +24,9 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    
+
     const toysCollection = client.db('PlaytimeParadise').collection('toys');
-    
+
     app.post('/toys', async (req, res) => {
       const toy = req.body;
       // console.log(toy);
@@ -39,25 +39,50 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     })
-    
+
     app.get('/toys/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
-      
+      const query = { _id: new ObjectId(id) };
+
       const result = await toysCollection.findOne(query);
       res.send(result);
     })
 
     app.get('/myToys', async (req, res) => {
       let query = {};
-      if(req.query.sellerEmail){
-        query= {sellerEmail: req.query.sellerEmail};
+      if (req.query.sellerEmail) {
+        query = { sellerEmail: req.query.sellerEmail };
       }
       // console.log(req.query);
       const result = await toysCollection.find(query).toArray();
       res.send(result);
     })
-    
+
+    app.put('/toys/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedToy = req.body;
+      console.log(updatedToy);
+
+      const option = {upsert: true};
+
+      const updateDoc = {
+        $set: {
+          toyName: updatedToy.toyName,
+          toyPicture: updatedToy.toyPicture,
+          sellerName: updatedToy.sellerName,
+          sellerEmail: updatedToy.sellerEmail,
+          subCategory: updatedToy.subCategory,
+          price: updatedToy.price,
+          rating: updatedToy.rating,
+          quantity: updatedToy.quantity,
+          description: updatedToy.description
+        },
+      };
+      const result = await toysCollection.updateOne(filter, updateDoc, option);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -70,9 +95,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Playtime Paradise server running')
+  res.send('Playtime Paradise server running')
 })
 
 app.listen(port, () => {
-    console.log(`Playtime Paradise server is running on port: ${port}`);
+  console.log(`Playtime Paradise server is running on port: ${port}`);
 })
