@@ -24,30 +24,40 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-
+    
     const toysCollection = client.db('PlaytimeParadise').collection('toys');
+    
+    app.post('/toys', async (req, res) => {
+      const toy = req.body;
+      // console.log(toy);
+      const result = await toysCollection.insertOne(toy);
+      res.send(result);
+    })
 
     app.get('/toys', async (req, res) => {
-        const cursor = toysCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+      const cursor = toysCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     })
-
+    
     app.get('/toys/:id', async (req, res) => {
-        const id = req.params.id;
-        const query = {_id: new ObjectId(id)};
-
-        const result = await toysCollection.findOne(query);
-        res.send(result);
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      
+      const result = await toysCollection.findOne(query);
+      res.send(result);
     })
 
-    app.post('/toys', async (req, res) => {
-        const toy = req.body;
-        // console.log(toy);
-        const result = await toysCollection.insertOne(toy);
-        res.send(result);
+    app.get('/myToys', async (req, res) => {
+      let query = {};
+      if(req.query.sellerEmail){
+        query= {sellerEmail: req.query.sellerEmail};
+      }
+      // console.log(req.query);
+      const result = await toysCollection.find(query).toArray();
+      res.send(result);
     })
-
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
