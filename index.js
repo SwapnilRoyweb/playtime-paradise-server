@@ -6,7 +6,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
-app.use(cors());
+// app.use(cors());
+const corsOptions ={
+  origin:'*', 
+  credentials:true,
+  optionSuccessStatus:200,
+}
+
+app.use(cors(corsOptions))
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ad0f77m.mongodb.net/?retryWrites=true&w=majority`;
@@ -24,6 +31,12 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+    client.connect((error)=>{
+      if(error){
+        console.log(error)
+        return;
+      }
+    });
 
     const toysCollection = client.db('PlaytimeParadise').collection('toys');
 
